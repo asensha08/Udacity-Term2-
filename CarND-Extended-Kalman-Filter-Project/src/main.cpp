@@ -35,8 +35,8 @@ int main()
 
   // used to compute the RMSE later
   Tools tools;
-  vector<VectorXd> estimations;
-  vector<VectorXd> ground_truth;
+  vector<Eigen::VectorXd> estimations;
+  vector<Eigen::VectorXd> ground_truth;
 
   h.onMessage([&fusionEKF,&tools,&estimations,&ground_truth](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -68,7 +68,7 @@ int main()
 
     	  if (sensor_type.compare("L") == 0) {
       	  		meas_package.sensor_type_ = MeasurementPackage::LASER;
-          		meas_package.raw_measurements_ = VectorXd(2);
+          		meas_package.raw_measurements_ = Eigen::VectorXd::Zero(2);
           		float px;
       	  		float py;
           		iss >> px;
@@ -79,7 +79,7 @@ int main()
           } else if (sensor_type.compare("R") == 0) {
 
       	  		meas_package.sensor_type_ = MeasurementPackage::RADAR;
-          		meas_package.raw_measurements_ = VectorXd(3);
+          		meas_package.raw_measurements_ = Eigen::VectorXd::Zero(3);
           		float ro;
       	  		float theta;
       	  		float ro_dot;
@@ -105,7 +105,7 @@ int main()
     	  gt_values(3) = vy_gt;
     	  ground_truth.push_back(gt_values);
 
-        cout<<"Debug1";
+        cout<<"Debug1"<<endl;
           
           //Call ProcessMeasurment(meas_package) for Kalman filter
     	  fusionEKF.ProcessMeasurement(meas_package);

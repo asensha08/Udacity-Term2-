@@ -1,8 +1,6 @@
 #include "kalman_filter.h"
 #include <math.h> //for math operations
 
-using Eigen::MatrixXd;
-using Eigen::VectorXd;
 
 // Please note that the Eigen library does not initialize 
 // VectorXd or MatrixXd objects with zeros upon creation.
@@ -11,9 +9,8 @@ KalmanFilter::KalmanFilter() {}
 
 KalmanFilter::~KalmanFilter() {}
 
-void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
-                        MatrixXd &H_in, MatrixXd &R_in, MatrixXd &Q_in) {
-  x_ = x_in;
+void KalmanFilter::Init( Eigen::MatrixXd &P_in, Eigen::MatrixXd &F_in,
+                        Eigen::MatrixXd &H_in, Eigen::MatrixXd &R_in, Eigen::MatrixXd &Q_in) {
   P_ = P_in;
   F_ = F_in;
   H_ = H_in;
@@ -23,7 +20,7 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 
 void KalmanFilter::Predict() {
   x_=F_*x_;
-  MatrixXd Ft = F_.transpose();
+  Eigen::MatrixXd Ft = F_.transpose();
   P_=F_ * P_ * Ft + Q_;
 }
 
@@ -32,16 +29,16 @@ void KalmanFilter::Update(const VectorXd &z) {
   TODO:
     * update the state by using Kalman Filter equations
   */
-  VectorXd y=z-H_*x_;
-  MatrixXd Ht = H_.transpose();
-  MatrixXd S=H_*P_*Ht + R_;
-  MatrixXd S_inv = S.inverse();
-  MatrixXd PHt = P_ * Ht;
-  MatrixXd K = PHt *S_inv;
+  Eigen::VectorXd y=z-H_*x_;
+  Eigen::MatrixXd Ht = H_.transpose();
+  Eigen::MatrixXd S=H_*P_*Ht + R_;
+  Eigen::MatrixXd S_inv = S.inverse();
+  Eigen::MatrixXd PHt = P_ * Ht;
+  Eigen::MatrixXd K = PHt *S_inv;
   /** New Measurement update**/
   x_=x_ + (K*y);
   long x_size = x_.size();
-	MatrixXd I = MatrixXd::Identity(x_size, x_size);
+	Eigen::MatrixXd I = Eigen::MatrixXd::Identity(x_size, x_size);
 	P_ = (I - K * H_) * P_;
 }
 
@@ -61,19 +58,19 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   }
 
   //Using the above equations to to calulate z prediction
-  VectorXd z_pred(3);
+  Eigen::VectorXd z_pred(3);
   z_pred<<rho,phi,rho_dot;
 
-  VectorXd y= z-z_pred;
-  MatrixXd Ht = H_.transpose();
-  MatrixXd S=H_*P_*Ht + R_;
-  MatrixXd S_inv = S.inverse();
-  MatrixXd PHt = P_ * Ht;
-  MatrixXd K = PHt *S_inv;
+  Eigen::VectorXd y= z-z_pred;
+  Eigen::MatrixXd Ht = H_.transpose();
+  Eigen::MatrixXd S=H_*P_*Ht + R_;
+  Eigen::MatrixXd S_inv = S.inverse();
+  Eigen::MatrixXd PHt = P_ * Ht;
+  Eigen::MatrixXd K = PHt *S_inv;
   /** New Measurement update**/
   x_=x_ + (K*y);
   long x_size = x_.size();
-	MatrixXd I = MatrixXd::Identity(x_size, x_size);
+	Eigen::MatrixXd I = Eigen::MatrixXd::Identity(x_size, x_size);
 	P_ = (I - K * H_) * P_;
 
 }
