@@ -9,8 +9,8 @@ KalmanFilter::KalmanFilter() {}
 
 KalmanFilter::~KalmanFilter() {}
 
-void KalmanFilter::Init( Eigen::MatrixXd &P_in, Eigen::MatrixXd &F_in,
-                        Eigen::MatrixXd &H_in, Eigen::MatrixXd &R_in, Eigen::MatrixXd &Q_in) {
+void KalmanFilter::Init(Eigen::VectorXd &x_in,Eigen::MatrixXd &P_in,Eigen::MatrixXd &F_in,Eigen::MatrixXd &H_in, Eigen::MatrixXd &R_in, Eigen::MatrixXd &Q_in) {
+  x_ = x_in; 
   P_ = P_in;
   F_ = F_in;
   H_ = H_in;
@@ -21,17 +21,17 @@ void KalmanFilter::Init( Eigen::MatrixXd &P_in, Eigen::MatrixXd &F_in,
 void KalmanFilter::Predict() {
   x_=F_*x_;
   Eigen::MatrixXd Ft = F_.transpose();
-  P_=F_ * P_ * Ft + Q_;
+  P_=(F_ * P_ * Ft) + Q_;
 }
 
-void KalmanFilter::Update(const VectorXd &z) {
+void KalmanFilter::Update(const Eigen::VectorXd &z) {
   /**
   TODO:
     * update the state by using Kalman Filter equations
   */
-  Eigen::VectorXd y=z-H_*x_;
+  Eigen::VectorXd y=z-(H_*x_);
   Eigen::MatrixXd Ht = H_.transpose();
-  Eigen::MatrixXd S=H_*P_*Ht + R_;
+  Eigen::MatrixXd S=(H_*P_*Ht) + R_;
   Eigen::MatrixXd S_inv = S.inverse();
   Eigen::MatrixXd PHt = P_ * Ht;
   Eigen::MatrixXd K = PHt *S_inv;
@@ -42,7 +42,7 @@ void KalmanFilter::Update(const VectorXd &z) {
 	P_ = (I - K * H_) * P_;
 }
 
-void KalmanFilter::UpdateEKF(const VectorXd &z) {
+void KalmanFilter::UpdateEKF(const Eigen::VectorXd &z) {
   /**
   TODO:
     * update the state by using Extended Kalman Filter equations
@@ -50,10 +50,12 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   */
   float rho= sqrt(pow(x_(0),2) + pow(x_(1),2));
   float phi= atan2(x_(1),x_(0));
+ 
+
   float rho_dot;
   if(fabs(rho)<=0.0001){
     rho_dot=0;
-  }else{
+  } else {
     rho_dot=(x_(0)*x_(2) + x_(1)*x_(3))/rho;
   }
 
@@ -62,6 +64,11 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   z_pred<<rho,phi,rho_dot;
 
   Eigen::VectorXd y= z-z_pred;
+  if(y[1] < -M_PI){
+    y[1] += 2 * M_PI;
+  }else if (y[1] > M_PI){
+    y[1] -= 2 * M_PI;
+  }
   Eigen::MatrixXd Ht = H_.transpose();
   Eigen::MatrixXd S=H_*P_*Ht + R_;
   Eigen::MatrixXd S_inv = S.inverse();

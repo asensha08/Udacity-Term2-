@@ -8,13 +8,15 @@ Tools::Tools() {}
 
 Tools::~Tools() {}
 
-Eigen::VectorXd Tools::CalculateRMSE(const vector<Eigen::VectorXd> &estimations,const vector<Eigen::VectorXd> &ground_truth) {
+Eigen::VectorXd Tools::CalculateRMSE(const vector<Eigen::VectorXd> &estimations,
+                                     const vector<Eigen::VectorXd> &ground_truth) {
   /**
   TODO:
     * Calculate the RMSE here.
   */
   //check the valid inputs
-  Eigen::VectorXd rmse;
+  Eigen::VectorXd rmse(4);
+  rmse << 0,0,0,0;
   if(estimations.size()!=ground_truth.size() || estimations.size()==0){
     cout<<"Check size of estimations. Estimation and Ground Truth Vector doesn't match in size";
     return rmse;
@@ -23,8 +25,8 @@ Eigen::VectorXd Tools::CalculateRMSE(const vector<Eigen::VectorXd> &estimations,
     Eigen::VectorXd residual= estimations[i]- ground_truth[i];
     residual=residual.array()*residual.array();
     rmse+=residual;
+  }
 
-    
 	//calculate the mean
 	rmse = rmse/estimations.size();
 
@@ -33,8 +35,6 @@ Eigen::VectorXd Tools::CalculateRMSE(const vector<Eigen::VectorXd> &estimations,
 
 	//return the result
 	return rmse;
-
-  }
 }
 
 Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd & x_state) {
@@ -43,6 +43,9 @@ Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd & x_state) {
     * Calculate a Jacobian here.
   */
   Eigen::MatrixXd Hj(3,4);
+  Hj <<  1,1,0,0,
+         1,1,0,0,
+         1,1,1,1;
 
   float px= x_state(0);
   float py= x_state(1);
@@ -58,8 +61,8 @@ Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd & x_state) {
 		return Hj;
 	}
 
-  Hj<<px/c2,py/c2,0,0,
-     -py/c1,px/c1,0,0,
+  Hj<<(px/c2),(py/c2),0,0,
+     -(py/c1),(px/c1),0,0,
       py*((vx*py)-(vy*px))/c3,px*((vy*px)-(vx*py))/c3,px/c2,py/c2;
 
   return Hj;

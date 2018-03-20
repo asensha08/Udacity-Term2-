@@ -98,7 +98,7 @@ int main()
     	  iss >> y_gt;
     	  iss >> vx_gt;
     	  iss >> vy_gt;
-    	  VectorXd gt_values(4);
+    	  Eigen::VectorXd gt_values(4);
     	  gt_values(0) = x_gt;
     	  gt_values(1) = y_gt; 
     	  gt_values(2) = vx_gt;
@@ -113,7 +113,7 @@ int main()
 
     	  //Push the current estimated x,y positon from the Kalman filter's state vector
 
-    	  VectorXd estimate(4);
+    	  Eigen::VectorXd estimate(4);
         cout<<"Debug3";
 
     	  double p_x = fusionEKF.ekf_.x_(0);
@@ -130,7 +130,7 @@ int main()
     	  estimations.push_back(estimate);
         cout<<"Debug";
 
-    	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
+    	  Eigen::VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
 
           json msgJson;
           msgJson["estimate_x"] = p_x;
